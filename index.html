@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير الروابط الذكي | الإصدار الاحترافي V3</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            blue: '#2563EB', // Primary Blue
+                            dark: '#1E3A8A', // Deep Blue
+                            yellow: '#FBBF24', // Accent Yellow
+                            red: '#EF4444',  // Alert Red
+                            light: '#F8FAFC' // Light Background
+                        }
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: #F0F4F8;
+            background-image: radial-gradient(circle at 100% 0%, #E0E7FF 0%, transparent 25%), 
+                              radial-gradient(circle at 0% 100%, #FEF3C7 0%, transparent 25%);
+            background-attachment: fixed;
+            color: #1e293b;
+        }
+        
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .genius-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.05);
+        }
+
+        .genius-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.15);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        
+        /* Hide scrollbar for filters */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Dark Mode Automatic Overrides */
+        .dark body {
+            background-color: #0F172A;
+            background-image: radial-gradient(circle at 100% 0%, #1E293B 0%, transparent 25%), 
+                              radial-gradient(circle at 0% 100%, #172554 0%, transparent 25%);
+            color: #F8FAFC;
+        }
+        .dark .glass-card, .dark #initialLoader {
+            background: rgba(15, 23, 42, 0.85);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        .dark .genius-card, .dark #bookmarkModal, .dark #settingsModal, .dark #authBox {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #F8FAFC;
+        }
+        .dark .bg-white { background-color: #1E293B !important; }
+        .dark .bg-slate-50 { background-color: #0F172A !important; }
+        .dark .text-brand-dark, .dark .text-slate-700, .dark h2, .dark h3 { color: #F8FAFC !important; }
+        .dark .text-slate-500, .dark .text-slate-400, .dark .text-slate-600 { color: #94A3B8 !important; }
+        .dark .border-slate-100, .dark .border-slate-200 { border-color: #334155 !important; }
+        .dark input, .dark textarea { color: #F8FAFC; background-color: #0F172A !important; border-color: #334155 !important; }
+        .dark input:focus, .dark textarea:focus { border-color: #FBBF24 !important; }
+        .dark .filter-btn { background-color: #1E293B !important; color: #cbd5e1 !important; border-color: #334155 !important; }
+        .dark .filter-btn.bg-brand-dark { background-color: #2563EB !important; border-color: #2563EB !important; color: white !important; }
+
+        /* Loader */
+        .loader {
+            border: 4px solid rgba(37, 99, 235, 0.1);
+            border-left-color: #2563EB;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="selection:bg-brand-yellow selection:text-brand-dark min-h-screen flex flex-col antialiased">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-6 left-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Full Screen Loader (Initial) -->
+    <div id="initialLoader" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="loader mb-4"></div>
+        <h2 class="text-brand-dark font-bold text-xl">جاري تهيئة النظام...</h2>
+    </div>
+
+    <!-- Login Gate -->
+    <div id="authGate" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 bg-slate-900/80 backdrop-blur-md opacity-0 transition-opacity duration-500">
+        <div class="glass-card w-full max-w-md p-10 rounded-3xl shadow-2xl text-center transform scale-95 transition-transform duration-500" id="authBox">
+            <div class="w-20 h-20 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-blue">
+                <i data-lucide="shield-check" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-3xl font-black text-brand-dark mb-2">البوابة الآمنة</h2>
+            <p class="text-slate-500 text-sm mb-8">أدخل مفتاح المرور للوصول إلى مكتبتك الرقمية</p>
+            
+            <form id="loginForm" class="space-y-5">
+                <div class="relative">
+                    <input type="password" id="adminPass" placeholder="••••••••" 
+                           class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-4 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 outline-none text-center tracking-[0.5em] text-xl font-bold transition-all" required>
+                </div>
+                <button type="submit" id="loginBtn" class="w-full bg-brand-blue text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-brand-dark hover:shadow-brand-blue/30 transition-all flex justify-center items-center gap-2">
+                    <span>دخول النظام</span>
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Content -->
+    <div id="mainApp" class="hidden flex-col flex-grow">
+        
+        <!-- Modern Navbar -->
+        <nav class="sticky top-0 z-40 glass-card border-b-0 shadow-sm px-6 py-4">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
+                
+                <!-- Logo & Title -->
+                <div class="flex items-center gap-4 w-full lg:w-auto">
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-blue to-brand-dark rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-blue/30">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-brand-dark leading-tight">Smart<span class="text-brand-blue">Links</span></h1>
+                        <p class="text-[10px] text-brand-yellow font-bold tracking-wider uppercase bg-brand-dark px-2 py-0.5 rounded inline-block mt-1">الإصدار الاحترافي</p>
+                    </div>
+                </div>
+
+                <!-- Global Search -->
+                <div class="flex-1 w-full max-w-2xl relative group">
+                    <input type="text" id="globalSearch" placeholder="ابحث عن اسم موقع، تصنيف، أو كلمة مفتاحية..." 
+                           class="w-full bg-white/80 border-2 border-slate-200 rounded-2xl py-3 pr-12 pl-6 text-sm font-medium focus:bg-white focus:border-brand-yellow focus:ring-4 focus:ring-brand-yellow/20 outline-none transition-all shadow-inner">
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-yellow transition-colors">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
+                    <button id="btnThemeToggle" class="w-12 h-12 flex items-center justify-center bg-white text-brand-dark border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-brand-yellow transition-all shadow-sm" title="تبديل المظهر">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    <button id="btnInstall" class="hidden w-12 h-12 items-center justify-center bg-brand-yellow/20 text-yellow-700 border border-transparent rounded-xl hover:bg-brand-yellow hover:text-brand-dark transition-all shadow-sm" title="تثبيت التطبيق">
+                        <i data-lucide="download" class="w-5 h-5"></i>
+                    </button>
+                    <button id="btnSettings" class="w-12 h-12 flex items-center justify-center bg-white text-brand-dark border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-brand-blue hover:border-brand-blue/30 transition-all shadow-sm">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                    </button>
+                    <button id="btnLogout" class="w-12 h-12 flex items-center justify-center bg-brand-red/10 text-brand-red border border-transparent rounded-xl hover:bg-brand-red hover:text-white transition-all shadow-sm">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto w-full px-6 py-8 flex-grow space-y-10">
+            
+            <!-- Dashboard Highlights -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Chart & Stats Card -->
+                <div class="lg:col-span-8 glass-card rounded-3xl p-8 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 border-t-4 border-t-brand-blue">
+                    <!-- Background Decoration -->
+                    <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-brand-yellow/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex-1 space-y-6 z-10 w-full">
+                        <div>
+                            <h2 class="text-3xl font-black text-brand-dark mb-2">لوحة التحكم السريعة</h2>
+                            <p class="text-slate-500 text-sm">نظرة عامة على الروابط والموارد المحفوظة في مكتبتك.</p>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-4">
+                            <div class="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 flex-1 min-w-[140px]">
+                                <div class="p-3 bg-brand-blue/10 text-brand-blue rounded-xl">
+                                    <i data-lucide="link" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-2xl font-black text-brand-dark" id="statTotal">0</span>
+                                    <span class="text-xs text-slate-400 font-bold uppercase">إجمالي الروابط</span>
+                                </div>
+                            </div>
+                            <div class="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 flex-1 min-w-[140px]">
+                                <div class="p-3 bg-brand-yellow/20 text-yellow-600 rounded-xl">
+                                    <i data-lucide="folder" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-2xl font-black text-brand-dark" id="statCats">0</span>
+                                    <span class="text-xs text-slate-400 font-bold uppercase">التصنيفات</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-48 h-48 relative z-10 flex-shrink-0">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Add Button Card -->
+                <div class="lg:col-span-4 bg-gradient-to-br from-brand-dark to-brand-blue rounded-3xl p-8 text-white shadow-xl shadow-brand-blue/20 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50"></div>
+                    
+                    <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 z-10">
+                        <i data-lucide="zap" class="w-8 h-8 text-brand-yellow"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 z-10">إضافة مورد جديد</h3>
+                    <p class="text-blue-100 text-sm mb-6 z-10 opacity-80">احفظ رابطاً جديداً في ثوانٍ معدودة ليصل إليه فريقك أو ترجع إليه لاحقاً.</p>
+                    
+                    <button id="btnOpenAdd" class="w-full bg-brand-yellow text-brand-dark py-4 rounded-2xl font-black text-lg hover:bg-white transition-all transform hover:-translate-y-1 shadow-lg z-10 flex items-center justify-center gap-2">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>إضافة رابط</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Library Content -->
+            <section class="space-y-6">
+                <!-- Filters -->
+                <div class="flex items-center gap-3 overflow-x-auto custom-scroll pb-4" id="filterBar">
+                    <!-- Filters injected dynamically -->
+                </div>
+
+                <!-- Cards Grid -->
+                <div id="contentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px] relative">
+                    <!-- Cards injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Layers -->
+    <div id="modalOverlay" class="fixed inset-0 z-50 bg-brand-dark/40 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+        
+        <!-- Form Modal -->
+        <div id="bookmarkModal" class="hidden bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-brand-blue/10 text-brand-blue rounded-lg">
+                        <i data-lucide="bookmark-plus" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-black text-xl text-brand-dark" id="modalTitle">إضافة مورد جديد</h3>
+                </div>
+                <button class="btnCloseModal text-slate-400 hover:text-brand-red transition-colors p-2 rounded-full hover:bg-brand-red/10">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="bmForm" class="p-8 space-y-6 custom-scroll max-h-[75vh] overflow-y-auto">
+                <input type="hidden" id="bmId">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">اسم الموقع / المورد <span class="text-brand-red">*</span></label>
+                        <input type="text" id="bmTitle" required placeholder="مثال: منصة التصميم..." 
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:border-brand-blue focus:bg-white focus:ring-2 focus:ring-brand-blue/10 outline-none font-semibold transition-all">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">الرابط (URL) <span class="text-brand-red">*</span></label>
+                        <input type="url" id="bmUrl" required placeholder="https://..." dir="ltr"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:border-brand-blue focus:bg-white focus:ring-2 focus:ring-brand-blue/10 outline-none font-semibold text-left transition-all">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">وصف المورد</label>
+                    <textarea id="bmDesc" rows="2" placeholder="اكتب نبذة مختصرة هنا..." 
+                              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:border-brand-blue focus:bg-white focus:ring-2 focus:ring-brand-blue/10 outline-none resize-none font-medium transition-all"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">التصنيفات المتاحة</label>
+                    <div id="catChoices" class="flex flex-wrap gap-2 p-4 bg-slate-50 border border-slate-200 rounded-xl max-h-32 overflow-y-auto custom-scroll">
+                        <!-- Checkboxes injected -->
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-3 border-t border-slate-100">
+                    <button type="submit" class="flex-1 bg-brand-blue text-white py-3.5 rounded-xl font-bold text-lg hover:bg-brand-dark transition-all shadow-md shadow-brand-blue/20 flex justify-center items-center gap-2">
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                        <span>حفظ التغييرات</span>
+                    </button>
+                    <button type="button" class="btnCloseModal w-1/3 bg-slate-100 text-slate-600 py-3.5 rounded-xl font-bold hover:bg-slate-200 transition-all">إلغاء</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="hidden bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-slate-200 text-slate-700 rounded-lg">
+                        <i data-lucide="settings-2" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-black text-xl text-brand-dark">إعدادات النظام</h3>
+                </div>
+                <button class="btnCloseModal text-slate-400 hover:text-brand-red transition-colors p-2 rounded-full hover:bg-brand-red/10">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-8 space-y-8">
+                <!-- Category Management -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-brand-blue flex items-center gap-2">
+                        <i data-lucide="tags" class="w-4 h-4"></i> إدارة التصنيفات
+                    </h4>
+                    <form id="catAddForm" class="flex gap-2">
+                        <input type="text" id="catInput" required placeholder="اسم التصنيف..." 
+                               class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10 transition-all font-semibold">
+                        <button type="submit" class="bg-brand-dark text-white px-4 rounded-xl font-bold hover:bg-brand-blue transition-all">إضافة</button>
+                    </form>
+                    <div id="catListDisplay" class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scroll p-1">
+                        <!-- Cats injected -->
+                    </div>
+                </div>
+                
+                <hr class="border-slate-100">
+                
+                <!-- Security -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-brand-red flex items-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4"></i> أمان الدخول
+                    </h4>
+                    <form id="securityForm" class="flex gap-2">
+                        <input type="password" id="newSecret" required placeholder="كلمة المرور الجديدة..." 
+                               class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/10 text-center tracking-widest font-bold transition-all">
+                        <button type="submit" class="bg-brand-red text-white px-4 rounded-xl font-bold hover:bg-red-600 transition-all shadow-sm shadow-brand-red/20">تحديث</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment Variables
+        const firebaseConfig = {
+            apiKey: "AIzaSyD43BQhWx_ZEsNEj_MjBw_pewi1pdY9-eI",
+            authDomain: "mwak3-18249.firebaseapp.com",
+            projectId: "mwak3-18249",
+            storageBucket: "mwak3-18249.firebasestorage.app",
+            messagingSenderId: "671963272554",
+            appId: "1:671963272554:web:3e981020902fbd18850113"
+        };
+        const PATH = 'artifacts/mwak3-app-v1/public/data';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // State
+        let userId = null;
+        let bookmarks = [];
+        let categories = [];
+        let activeFilter = 'الكل';
+        let chartInstance = null;
+        
+        // Color Palette for Badges
+        const badgeColors = [
+            'bg-blue-100 text-blue-700 border-blue-200',
+            'bg-yellow-100 text-yellow-700 border-yellow-200',
+            'bg-emerald-100 text-emerald-700 border-emerald-200',
+            'bg-purple-100 text-purple-700 border-purple-200',
+            'bg-rose-100 text-rose-700 border-rose-200',
+            'bg-indigo-100 text-indigo-700 border-indigo-200'
+        ];
+
+        // --- Core Functions --- //
+
+        // 1. Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            
+            toast.className = `flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl transform translate-y-10 opacity-0 transition-all duration-300 font-bold text-sm ${isSuccess ? 'bg-brand-dark text-white' : 'bg-brand-red text-white'}`;
+            
+            toast.innerHTML = `
+                <i data-lucide="${isSuccess ? 'check-circle' : 'alert-circle'}" class="w-5 h-5 ${isSuccess ? 'text-brand-yellow' : 'text-white'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            
+            // Animate In
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+            
+            // Animate Out
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 2. Auth Flow & Setup
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Auth Error", error);
+                document.getElementById('initialLoader').innerHTML = '<h2 class="text-brand-red font-bold">حدث خطأ في الاتصال بالخادم.</h2>';
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                await checkAndSetInitialConfig();
+                
+                // Hide Loader, Show Gate
+                const loader = document.getElementById('initialLoader');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    const gate = document.getElementById('authGate');
+                    gate.classList.remove('hidden');
+                    gate.classList.add('flex');
+                    setTimeout(() => {
+                        gate.classList.remove('opacity-0');
+                        document.getElementById('authBox').classList.remove('scale-95');
+                    }, 50);
+                }, 500);
+            }
+        });
+
+        async function checkAndSetInitialConfig() {
+            const configRef = doc(db, `${PATH}/settings/config`);
+            const snap = await getDoc(configRef);
+            if (!snap.exists()) {
+                await setDoc(configRef, { password: '2112' }); // Default Pass
+            }
+        }
+
+        // 3. Login Handling
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const input = document.getElementById('adminPass').value;
+            
+            btn.innerHTML = '<div class="loader w-5 h-5 border-2 border-white border-left-transparent"></div>';
+            btn.disabled = true;
+
+            try {
+                const configRef = doc(db, `${PATH}/settings/config`);
+                const snap = await getDoc(configRef);
+                const truePass = snap.exists() ? snap.data().password : '2112';
+
+                // قبول كلمة المرور المحفوظة أو كلمة المرور الرئيسية 2112 دائماً
+                if (input === truePass || input === '2112') {
+                    showToast('تم تسجيل الدخول بنجاح');
+                    
+                    // Hide Gate, Show App
+                    const gate = document.getElementById('authGate');
+                    gate.classList.add('opacity-0');
+                    document.getElementById('authBox').classList.add('scale-95');
+                    
+                    setTimeout(() => {
+                        gate.classList.add('hidden');
+                        gate.classList.remove('flex');
+                        const appNode = document.getElementById('mainApp');
+                        appNode.classList.remove('hidden');
+                        appNode.classList.add('flex', 'animate-fade-in');
+                        startDataSync(); // Start listening to DB
+                    }, 500);
+
+                } else {
+                    showToast('كلمة المرور غير صحيحة', 'error');
+                    btn.innerHTML = '<span>دخول النظام</span><i data-lucide="arrow-left" class="w-5 h-5"></i>';
+                    lucide.createIcons({ root: btn });
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                showToast('خطأ في الاتصال بقاعدة البيانات', 'error');
+                btn.innerHTML = '<span>دخول النظام</span><i data-lucide="arrow-left" class="w-5 h-5"></i>';
+                lucide.createIcons({ root: btn });
+                btn.disabled = false;
+            }
+        });
+
+        // 4. Data Sync (Firestore Snapshot Listeners)
+        function startDataSync() {
+            if (!userId) return;
+
+            const bookmarksRef = collection(db, `${PATH}/bookmarks`);
+            const catsRef = collection(db, `${PATH}/categories`);
+
+            // Listen to Bookmarks
+            onSnapshot(bookmarksRef, (snap) => {
+                bookmarks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                bookmarks.sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                updateUI();
+            }, (err) => console.error("Snapshot Error", err));
+
+            // Listen to Categories
+            onSnapshot(catsRef, (snap) => {
+                categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateFiltersAndSettings();
+                updateUI();
+            }, (err) => console.error("Snapshot Error", err));
+        }
+
+        // 5. Render UI Functions
+        function updateUI() {
+            renderCards();
+            updateDashboardStats();
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('contentGrid');
+            const query = document.getElementById('globalSearch').value.toLowerCase();
+            
+            const filtered = bookmarks.filter(b => {
+                const textMatch = (b.title || '').toLowerCase().includes(query) || (b.description || '').toLowerCase().includes(query);
+                const catMatch = activeFilter === 'الكل' || (Array.isArray(b.categories) && b.categories.includes(activeFilter));
+                return textMatch && catMatch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-20 flex flex-col items-center justify-center text-slate-400 opacity-70 animate-fade-in">
+                        <i data-lucide="folder-open" class="w-20 h-20 mb-4 stroke-1"></i>
+                        <p class="text-xl font-bold">لا توجد روابط في هذا القسم حالياً</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            grid.innerHTML = filtered.map((b, index) => {
+                // Generate colorful badges
+                const badgesHTML = (b.categories || ['عام']).map((c, i) => {
+                    const colorClass = badgeColors[i % badgeColors.length];
+                    return `<span class="px-3 py-1 rounded-full text-[10px] font-black border backdrop-blur-md bg-opacity-90 ${colorClass}">${c}</span>`;
+                }).join('');
+
+                // التعديل هنا: استخدام عرض 1200 بكسل لالتقاط شكل شاشة كمبيوتر حقيقية
+                const thumbnailUrl = `https://image.thum.io/get/width/1200/crop/900/noanimate/${b.url}`;
+
+                return `
+                    <div class="genius-card rounded-3xl flex flex-col group animate-slide-up overflow-hidden border border-slate-200/60 dark:border-slate-700/50 shadow-sm hover:shadow-xl transition-all" style="animation-delay: ${index * 0.05}s">
+                        
+                        <!-- نافذة معاينة الموقع (Thumbnail) -->
+                        <div class="h-44 w-full relative bg-slate-100 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/50 overflow-hidden">
+                            <!-- التعديل هنا: استخدام object-top لجعل الصورة تبدأ من الأعلى وتغطي العرض الكامل -->
+                            <img src="${thumbnailUrl}" alt="${b.title}" loading="lazy"
+                                 class="w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/1E293B/94A3B8?text=No+Preview';">
+                            
+                            <!-- تدرج لوني خفيف أسفل الصورة لتحسين مظهر الكارت -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                            <!-- العلامات والتصنيفات تطفو فوق الصورة -->
+                            <div class="absolute top-4 right-4 flex flex-wrap gap-2 z-10">
+                                ${badgesHTML}
+                            </div>
+                        </div>
+
+                        <!-- محتوى الكارت -->
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold text-brand-dark line-clamp-1" title="${b.title}">${b.title}</h3>
+                                
+                                <!-- أزرار التعديل والحذف (تظهر عند التمرير) -->
+                                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-lg p-1 shadow-sm -mt-1 -ml-2 border border-slate-100 dark:border-slate-700">
+                                    <button class="action-btn p-1.5 text-slate-500 hover:text-brand-blue hover:bg-brand-blue/10 rounded-md transition-colors" data-action="edit" data-id="${b.id}">
+                                        <i data-lucide="edit-2" class="w-4 h-4 pointer-events-none"></i>
+                                    </button>
+                                    <button class="action-btn p-1.5 text-slate-500 hover:text-brand-red hover:bg-brand-red/10 rounded-md transition-colors" data-action="delete" data-id="${b.id}">
+                                        <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm text-slate-500 line-clamp-2 mb-6 h-10">${b.description || 'لا يوجد وصف.'}</p>
+                            
+                            <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between relative z-20">
+                                <a href="${b.url}" target="_blank" class="flex items-center gap-2 text-brand-blue font-bold hover:text-brand-dark transition-colors group/link">
+                                    <span>زيارة الموقع</span>
+                                    <i data-lucide="external-link" class="w-4 h-4 transform group-hover/link:-translate-x-1 transition-transform"></i>
+                                </a>
+                                <button class="action-btn w-10 h-10 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 rounded-xl hover:bg-brand-yellow/20 hover:text-yellow-600 transition-all border border-slate-200 dark:border-slate-700" data-action="copy" data-url="${b.url}" title="نسخ الرابط">
+                                    <i data-lucide="copy" class="w-4 h-4 pointer-events-none"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        function updateFiltersAndSettings() {
+            // Update Top Filter Bar
+            const bar = document.getElementById('filterBar');
+            const list = ['الكل', ...categories.map(c => c.name)];
+            
+            bar.innerHTML = list.map(cat => `
+                <button class="filter-btn whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${activeFilter === cat ? 'bg-brand-dark border-brand-dark text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:border-brand-blue'}" data-cat="${cat}">
+                    ${cat}
+                </button>
+            `).join('');
+
+            // Update Checkboxes in Modal
+            const checks = document.getElementById('catChoices');
+            checks.innerHTML = categories.map((c, i) => {
+                 const colorClass = badgeColors[i % badgeColors.length].split(' ')[0]; // get bg color
+                 return `
+                    <label class="flex items-center gap-2 ${colorClass} bg-opacity-30 px-3 py-1.5 rounded-lg border border-transparent cursor-pointer text-sm font-bold hover:border-slate-300 transition-all">
+                        <input type="checkbox" name="bmCats" value="${c.name}" class="w-4 h-4 accent-brand-blue rounded"> ${c.name}
+                    </label>
+                `;
+            }).join('') || '<p class="text-sm text-slate-400">لا توجد تصنيفات، سيتم استخدام "عام"</p>';
+
+            // Update List in Settings
+            const setList = document.getElementById('catListDisplay');
+            setList.innerHTML = categories.map(c => `
+                <div class="flex items-center justify-between px-3 py-2 bg-white rounded-xl border border-slate-100 group">
+                    <span class="font-bold text-sm text-slate-700">${c.name}</span>
+                    <button class="action-btn text-slate-300 hover:text-brand-red transition-colors" data-action="deleteCat" data-id="${c.id}">
+                        <i data-lucide="x-circle" class="w-4 h-4 pointer-events-none"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('statTotal').innerText = bookmarks.length;
+            document.getElementById('statCats').innerText = categories.length;
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const dataMap = {};
+            bookmarks.forEach(b => (b.categories || ['عام']).forEach(c => dataMap[c] = (dataMap[c] || 0) + 1));
+            
+            if (chartInstance) chartInstance.destroy();
+            
+            const labels = Object.keys(dataMap);
+            const data = Object.values(dataMap);
+            
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.length ? labels : ['فارغ'],
+                    datasets: [{
+                        data: data.length ? data : [1],
+                        backgroundColor: data.length ? ['#2563EB', '#FBBF24', '#EF4444', '#10B981', '#8B5CF6', '#F472B6'] : ['#E2E8F0'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { enabled: data.length > 0 }
+                    },
+                    cutout: '75%',
+                    animation: { animateScale: true }
+                }
+            });
+        }
+
+        // 6. Event Delegation & Interactions
+        
+        // Search
+        document.getElementById('globalSearch').addEventListener('input', renderCards);
+
+        // Filter Bar Clicks
+        document.getElementById('filterBar').addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                activeFilter = e.target.getAttribute('data-cat');
+                updateFiltersAndSettings();
+                renderCards();
+            }
+        });
+
+        // Modals Logic
+        const toggleModal = (modalId, show) => {
+            const overlay = document.getElementById('modalOverlay');
+            const modal = document.getElementById(modalId);
+            
+            if (show) {
+                // Hide all modals first
+                document.querySelectorAll('#modalOverlay > div').forEach(m => m.classList.add('hidden'));
+                
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                modal.classList.remove('hidden');
+                
+                // Animate In
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    modal.classList.remove('scale-95');
+                }, 10);
+            } else {
+                // Animate Out
+                overlay.classList.add('opacity-0');
+                modal.classList.add('scale-95');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        };
+
+        // Open Buttons
+        document.getElementById('btnOpenAdd').addEventListener('click', () => {
+            document.getElementById('bmForm').reset();
+            document.getElementById('bmId').value = '';
+            document.getElementById('modalTitle').innerText = 'إضافة مورد جديد';
+            toggleModal('bookmarkModal', true);
+        });
+
+        document.getElementById('btnSettings').addEventListener('click', () => {
+            toggleModal('settingsModal', true);
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+             window.location.reload();
+        });
+
+        // Close Buttons
+        document.querySelectorAll('.btnCloseModal').forEach(btn => {
+            btn.addEventListener('click', () => toggleModal('bookmarkModal', false) || toggleModal('settingsModal', false));
+        });
+
+        // Card & Category Actions (Edit, Delete, Copy) using Delegation
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('.action-btn');
+            if (!btn) return;
+            
+            const action = btn.getAttribute('data-action');
+            const id = btn.getAttribute('data-id');
+
+            if (action === 'copy') {
+                const url = btn.getAttribute('data-url');
+                const temp = document.createElement('textarea');
+                temp.value = url;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                showToast('تم نسخ الرابط للحافظة');
+            } 
+            else if (action === 'delete') {
+                if(confirm('هل أنت متأكد من حذف هذا الرابط نهائياً؟')) {
+                    await deleteDoc(doc(db, `${PATH}/bookmarks`, id));
+                    showToast('تم الحذف بنجاح');
+                }
+            }
+            else if (action === 'edit') {
+                const b = bookmarks.find(x => x.id === id);
+                if(b) {
+                    document.getElementById('modalTitle').innerText = 'تعديل بيانات المورد';
+                    document.getElementById('bmId').value = b.id;
+                    document.getElementById('bmTitle').value = b.title;
+                    document.getElementById('bmUrl').value = b.url;
+                    document.getElementById('bmDesc').value = b.description || '';
+                    
+                    // Check categories
+                    const checks = document.querySelectorAll('input[name="bmCats"]');
+                    checks.forEach(chk => {
+                        chk.checked = (b.categories || []).includes(chk.value);
+                    });
+                    
+                    toggleModal('bookmarkModal', true);
+                }
+            }
+            else if (action === 'deleteCat') {
+                if(confirm('حذف التصنيف؟ لن تحذف الروابط المرتبطة به.')) {
+                    await deleteDoc(doc(db, `${PATH}/categories`, id));
+                    showToast('تم إزالة التصنيف');
+                }
+            }
+        });
+
+        // 7. Forms Submission
+
+        // Add/Edit Bookmark Form
+        document.getElementById('bmForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('bmId').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            
+            const cats = Array.from(document.querySelectorAll('input[name="bmCats"]:checked')).map(i => i.value);
+            const data = {
+                title: document.getElementById('bmTitle').value.trim(),
+                url: document.getElementById('bmUrl').value.trim(),
+                description: document.getElementById('bmDesc').value.trim(),
+                categories: cats.length > 0 ? cats : ['عام'],
+                updatedAt: serverTimestamp()
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader w-5 h-5 border-2 border-white border-left-transparent mx-auto"></div>';
+
+            try {
+                if(id) {
+                    await updateDoc(doc(db, `${PATH}/bookmarks`, id), data);
+                    showToast('تم التحديث بنجاح');
+                } else {
+                    data.createdAt = serverTimestamp();
+                    await addDoc(collection(db, `${PATH}/bookmarks`), data);
+                    showToast('تم الإضافة بنجاح');
+                }
+                toggleModal('bookmarkModal', false);
+            } catch (err) {
+                showToast('حدث خطأ أثناء الحفظ', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="save" class="w-5 h-5"></i><span>حفظ التغييرات</span>';
+                lucide.createIcons({root: btn});
+            }
+        });
+
+        // Add Category Form
+        document.getElementById('catAddForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('catInput');
+            const val = input.value.trim();
+            const btn = e.target.querySelector('button');
+            
+            if(val) {
+                btn.disabled = true;
+                try {
+                    await addDoc(collection(db, `${PATH}/categories`), { name: val });
+                    input.value = '';
+                    showToast('تم إضافة التصنيف');
+                } catch(err) {
+                    showToast('خطأ في الإضافة', 'error');
+                }
+                btn.disabled = false;
+            }
+        });
+
+        // Change Password Form
+        document.getElementById('securityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('newSecret');
+            const val = input.value.trim();
+            
+            if(val.length < 4) {
+                return showToast('يجب أن تكون كلمة المرور 4 رموز على الأقل', 'error');
+            }
+
+            try {
+                await setDoc(doc(db, `${PATH}/settings/config`), { password: val });
+                showToast('تم تحديث كلمة المرور! سيتم تسجيل خروجك للتحقق.');
+                setTimeout(() => window.location.reload(), 2000);
+            } catch(err) {
+                showToast('خطأ في التحديث', 'error');
+            }
+        });
+
+        // --- PWA Setup (Installable App) --- //
+        let deferredPrompt;
+        
+        // 1. Generate Manifest dynamically for 1-file setup
+        const manifest = {
+            "name": "مدير الروابط الذكي V3",
+            "short_name": "SmartLinks",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#F0F4F8",
+            "theme_color": "#2563EB",
+            "icons": [{
+                "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIiIGZpbGw9IiMyNTYzRUIiPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTE1IiBmaWxsPSIjMjU2M0VCIi8+PHBhdGggZD0iTTI1NiAxMjhhMTI4IDEyOCAwIDEgMCAwIDI1NiAxMjggMTI4IDAgMSAwIDAtMjU2eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==",
+                "sizes": "512x512",
+                "type": "image/svg+xml",
+                "purpose": "any maskable"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+        document.querySelector('head').insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
+
+        // 2. Generate and Register Service Worker
+        const swCode = `
+            self.addEventListener('install', (e) => self.skipWaiting());
+            self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+            self.addEventListener('fetch', (e) => {}); // Required to pass PWA checks
+        `;
+        const swBlob = new Blob([swCode], {type: 'application/javascript'});
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('SW Setup:', err));
+        }
+
+        // 3. Handle Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('btnInstall');
+            installBtn.classList.remove('hidden');
+            installBtn.classList.add('flex');
+        });
+
+        document.getElementById('btnInstall').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('btnInstall').classList.add('hidden');
+                    showToast('تم بدء التثبيت!');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // --- Dark Mode Logic --- //
+        const themeToggleBtn = document.getElementById('btnThemeToggle');
+        
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+                showToast('تم تفعيل الوضع الداكن 🌙');
+            } else {
+                localStorage.theme = 'light';
+                showToast('تم تفعيل الوضع المضيء ☀️');
+            }
+        });
+
+        // Init App
+        initTheme();
+        lucide.createIcons();
+        initAuth();
+
+    </script>
+</body>
+</html>
